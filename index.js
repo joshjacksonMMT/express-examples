@@ -26,7 +26,6 @@ const currentDateMiddleware = function (req, res, next)
 app.use((req, res, next) =>
 {
   console.log("First middleware function.");
-  console.log(req);
   next();
 });
 
