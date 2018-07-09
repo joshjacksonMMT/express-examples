@@ -2,6 +2,8 @@ const express = require('express');
 
 const app = express();
 
+const session = require('express-session');
+
 //Store routing stuff for the 'uk' page inside the uk.js file and import its routing functionality.
 let uk = require('./uk');
 
@@ -18,26 +20,30 @@ let france = require('./france');
 
 const currentDateMiddleware = function (req, res, next)
 {
-  console.log(Date.now());
+  console.log("\nCurrent Date: " + Date.now());
   next();
 }
 
 //First middleware function.
 app.use((req, res, next) =>
 {
-  console.log("First middleware function.");
+  console.log("\nFirst middleware function.");
   next();
 });
 
 //Second middleware function.
 app.use(currentDateMiddleware);
 
-//Last middleware function.
+
+//Third middleware function.
 app.use((req, res, next) =>
 {
-  console.log("Last middleware function.");
-  res.end();
+  console.log("\nLast middleware function.");
+  next();
 });
+
+//Last middleware function. (express-session middleware)
+app.use(session({ secret: "Rutland" }));
 
 
 // If the route is /uk, then go to the uk.js routing and let that decide what gets sent (ie. the "Hello Uk!" message probably)
@@ -49,8 +55,22 @@ app.use('/france', france);
 // When a default route request comes in.
 app.get('/', (req, res) =>
 {
-  res.send("Hello World!");
+  if (req.session.views)
+  {
+    req.session.views++;
+    res.send("You have viewed this page " + req.session.views + " times.");
+  }
+  else
+  {
+    req.session.views = 1;
+    res.send("This is your first time viewing this page, Hello World!");
+  }
+  res.end();
 });
+
+
+
+
 
 app.listen(3000, () =>
 {
